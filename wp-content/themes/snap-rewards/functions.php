@@ -6,7 +6,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'SNAP_VERSION', '1.0.0' );
+define( 'SNAP_VERSION', '1.0.2' );
 
 /**
  * BUILD-TIME NOINDEX.
@@ -54,6 +54,10 @@ function snap_assets() {
 	wp_enqueue_style( 'swiper',             $css . '/swiper.css',             array(), $ver );
 	wp_enqueue_style( 'main-style',         $css . '/main-style.css',         array(), $ver );
 	wp_enqueue_style( 'responsive',         $css . '/responsive.css',         array(), $ver );
+	// Theme customizer / custom CSS — was inline at the END of <head> on the original,
+	// so it must load LAST to preserve the cascade (hero h1 size, blog card borders,
+	// single-post-area formatting, menu hover colour, breadcrumbs).
+	wp_enqueue_style( 'snap-custom-inline', $css . '/custom-inline.css',      array(), $ver );
 
 	// JS — jQuery from core, then the theme scripts in the original order.
 	$js = get_template_directory_uri() . '/js';

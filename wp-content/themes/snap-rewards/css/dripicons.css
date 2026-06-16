@@ -2,11 +2,11 @@
 
 @font-face {
 font-family: "dripicons-v2";
-src:url(//snap-rewards.com/wp-content/themes/snap-rewards/fonts/dripicons-v2.eot);
-src:url(//snap-rewards.com/wp-content/themes/snap-rewards/fonts/dripicons-v2.eot?#iefix) format("embedded-opentype"),
-url(//snap-rewards.com/wp-content/themes/snap-rewards/fonts/dripicons-v2.woff) format("woff"),
-url(//snap-rewards.com/wp-content/themes/snap-rewards/fonts/dripicons-v2.ttf) format("truetype"),
-url(//snap-rewards.com/wp-content/themes/snap-rewards/fonts/dripicons-v2.svg#dripicons-v2) format("svg");
+src:url(/wp-content/themes/snap-rewards/fonts/dripicons-v2.eot);
+src:url(/wp-content/themes/snap-rewards/fonts/dripicons-v2.eot?#iefix) format("embedded-opentype"),
+url(/wp-content/themes/snap-rewards/fonts/dripicons-v2.woff) format("woff"),
+url(/wp-content/themes/snap-rewards/fonts/dripicons-v2.ttf) format("truetype"),
+url(/wp-content/themes/snap-rewards/fonts/dripicons-v2.svg#dripicons-v2) format("svg");
 font-weight: normal;
 font-style: normal;
 }

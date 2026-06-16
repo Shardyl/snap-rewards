@@ -1495,7 +1495,7 @@ content: "";
 position: absolute;
 width: 300px;
 height: 100%;
-background: url(//snap-rewards.com/wp-content/themes/snap-rewards/img/shape/header-sape8.png);
+background: url(/wp-content/themes/snap-rewards/img/shape/header-sape8.png);
 top: 0;
 }
 .single-testimonial {
@@ -2140,7 +2140,7 @@ position: absolute;
 content: "";
 left: 19px;
 top: 29px;
-background: url(//snap-rewards.com/wp-content/themes/snap-rewards/img/icon/blockquote_d.png);
+background: url(/wp-content/themes/snap-rewards/img/icon/blockquote_d.png);
 height: 86px;
 width: 92px;
 z-index: -1;
@@ -2859,7 +2859,7 @@ left: 0;
 bottom: 0;
 height: 4px;
 width: 94px;
-background: url(//snap-rewards.com/wp-content/themes/snap-rewards/img/bg/tf-line.png) no-repeat;
+background: url(/wp-content/themes/snap-rewards/img/bg/tf-line.png) no-repeat;
 }
 .footer-link ul li {
 display: flex;
@@ -3157,7 +3157,7 @@ font-weight: 500;
 font-size: 14px;
 }
 .quote-post{
-background: url(//snap-rewards.com/wp-content/themes/snap-rewards/images/quote_bg.png);
+background: url(/wp-content/themes/snap-rewards/images/quote_bg.png);
 }
 .widget_media_image a:hover {
 padding-left: 0 !important;
@@ -4155,7 +4155,7 @@ content: "";
 position: absolute;
 left:0;
 top:5px;
-background: url(//snap-rewards.com/wp-content/themes/snap-rewards/img/icon/vs-icon.png) no-repeat center;
+background: url(/wp-content/themes/snap-rewards/img/icon/vs-icon.png) no-repeat center;
 background-size: cover;
 } .swiper-container {
 width: 100%;
@@ -4181,7 +4181,7 @@ width: 400px;
 height: 750px;
 top: -39px;
 left: -39px;
-background-image: url(//snap-rewards.com/wp-content/themes/snap-rewards/img/bg/iphone-slider.png);
+background-image: url(/wp-content/themes/snap-rewards/img/bg/iphone-slider.png);
 z-index: 99;
 }
 .swiper-container-3d .swiper-slide-shadow-left,.swiper-container-3d .swiper-slide-shadow-right {
