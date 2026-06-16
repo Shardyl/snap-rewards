@@ -6,7 +6,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'SNAP_VERSION', '1.0.8' );
+define( 'SNAP_VERSION', '1.0.9' );
 
 /**
  * BUILD-TIME NOINDEX.
@@ -58,6 +58,22 @@ function snap_assets() {
 	// so it must load LAST to preserve the cascade (hero h1 size, blog card borders,
 	// single-post-area formatting, menu hover colour, breadcrumbs).
 	wp_enqueue_style( 'snap-custom-inline', $css . '/custom-inline.css',      array(), $ver );
+
+	// BetterDocs structural layout CSS — free doesn't enqueue the archive/sidebar
+	// layout bundles (e.g. .betterdocs-display-flex two-column, sidebar widths),
+	// so load the captured originals on docs pages to restore the navigable layout.
+	if ( is_post_type_archive( 'docs' ) || is_singular( 'docs' ) || is_tax( 'doc_category' ) || is_tax( 'doc_tag' ) ) {
+		$d = $css . '/docs';
+		foreach ( array(
+			'betterdocs-breadcrumb', 'betterdocs-pagination', 'betterdocs-category-grid',
+			'betterdocs-category-box', 'betterdocs-docs', 'betterdocs-single', 'betterdocs-toc',
+			'betterdocs-search-modal', 'betterdocs-reactions', 'betterdocs-social-share',
+			'betterdocs-encyclopedia', 'betterdocs-glossaries', 'single-doc-attachments',
+			'single-doc-related-articles', 'reading-time', 'simplebar', 'mediaelement', 'wp-mediaelement',
+		) as $h ) {
+			wp_enqueue_style( 'snap-' . $h, $d . '/' . $h . '.css', array(), $ver );
+		}
+	}
 
 	// JS — jQuery from core, then the theme scripts in the original order.
 	$js = get_template_directory_uri() . '/js';
