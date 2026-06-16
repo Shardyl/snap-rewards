@@ -6,8 +6,11 @@
  */
 get_header();
 $slug = get_post_field( 'post_name', get_queried_object_id() );
+$doc_ctx = snap_doc_context();
 $partial = get_template_directory() . '/inc/content/' . sanitize_file_name( $slug ) . '.html';
-if ( is_readable( $partial ) ) {
+if ( $doc_ctx ) {
+	snap_render( $doc_ctx[0] );
+} elseif ( is_readable( $partial ) ) {
 	snap_render( $slug );
 } else {
 	while ( have_posts() ) {
