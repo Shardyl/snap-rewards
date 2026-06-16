@@ -6,7 +6,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'SNAP_VERSION', '1.0.2' );
+define( 'SNAP_VERSION', '1.0.3' );
 
 /**
  * BUILD-TIME NOINDEX.
@@ -108,6 +108,22 @@ function snap_noindex_header( $headers ) {
 	return $headers;
 }
 add_filter( 'wp_headers', 'snap_noindex_header' );
+
+/* ---------------------------------------------------------------------------
+ * Body classes: the original /blog/ was a posts archive (body class "blog hfeed"),
+ * so its CSS is scoped to `.blog ...` (e.g. the post-card Read More spacing
+ * `.blog .card .entry-footer{padding:0 20px 25px}`). Our /blog/ is a static page,
+ * so add those classes to reproduce the original styling exactly.
+ * ------------------------------------------------------------------------- */
+function snap_body_class( $classes ) {
+	if ( is_page( 'blog' ) ) {
+		$classes = array_diff( $classes, array( 'page', 'page-template-default' ) );
+		$classes[] = 'blog';
+		$classes[] = 'hfeed';
+	}
+	return $classes;
+}
+add_filter( 'body_class', 'snap_body_class' );
 
 /* ---------------------------------------------------------------------------
  * Render a captured content partial verbatim (the faithful page body).
