@@ -6,7 +6,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'SNAP_VERSION', '1.0.6' );
+define( 'SNAP_VERSION', '1.0.8' );
 
 /**
  * BUILD-TIME NOINDEX.
@@ -124,6 +124,22 @@ function snap_body_class( $classes ) {
 	return $classes;
 }
 add_filter( 'body_class', 'snap_body_class' );
+
+/* ---------------------------------------------------------------------------
+ * Force our own docs archive template (search hero + category-box grid) for the
+ * /docs/ landing, overriding BetterDocs' built-in flat-list layout. Runs late so
+ * it wins against BetterDocs' own template_include.
+ * ------------------------------------------------------------------------- */
+function snap_docs_archive_template( $template ) {
+	if ( is_post_type_archive( 'docs' ) ) {
+		$custom = get_template_directory() . '/archive-docs.php';
+		if ( is_readable( $custom ) ) {
+			return $custom;
+		}
+	}
+	return $template;
+}
+add_filter( 'template_include', 'snap_docs_archive_template', 9999 );
 
 /* ---------------------------------------------------------------------------
  * Render a captured content partial verbatim (the faithful page body).
