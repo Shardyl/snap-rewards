@@ -1,0 +1,66 @@
+/* Snap Rewards — guarantee the BetterDocs two-column docs layout (sidebar + content)
+   for the injected sidebar on category + single-doc pages. */
+.betterdocs-content-wrapper.betterdocs-display-flex{
+	display:flex;
+	flex-direction:row;
+	align-items:flex-start;
+	gap:30px;
+}
+.betterdocs-content-wrapper.betterdocs-display-flex > .snap-docs-sidebar{
+	flex:0 0 300px;
+	max-width:300px;
+	width:300px;
+}
+.betterdocs-content-wrapper.betterdocs-display-flex > .betterdocs-content-area{
+	flex:1 1 auto;
+	min-width:0;
+}
+.snap-docs-sidebar{
+	background:#fff;
+	border:1px solid #eef0f5;
+	border-radius:10px;
+	padding:20px;
+}
+.snap-docs-sidebar .betterdocs-search-form,
+.snap-docs-sidebar form{ margin-bottom:18px; }
+
+/* nav tree */
+.snap-docs-nav-cat{ margin-bottom:6px; }
+.snap-docs-nav-head{
+	display:flex; align-items:center; gap:10px;
+	padding:10px 12px; border-radius:8px;
+	color:#1f2a44; font-weight:600; text-decoration:none;
+}
+.snap-docs-nav-head:hover{ background:#f5f6fb; color:#1f2a44; }
+.snap-docs-nav-cat.is-open .snap-docs-nav-head{ background:#f5f6fb; }
+.snap-docs-nav-head .snap-folder{
+	width:18px; height:15px; flex:0 0 18px; border-radius:2px;
+	background:#c7d0e0; position:relative;
+}
+.snap-docs-nav-head .snap-folder:before{
+	content:""; position:absolute; top:-4px; left:0; width:8px; height:4px;
+	border-radius:2px 2px 0 0; background:#c7d0e0;
+}
+.snap-docs-nav-head .snap-cat-name{ flex:1 1 auto; }
+.snap-docs-nav-head .snap-cat-count{
+	background:#eef1f7; color:#5a6b8c; font-size:12px; font-weight:600;
+	min-width:22px; height:22px; line-height:22px; text-align:center; border-radius:11px; padding:0 6px;
+}
+.snap-docs-nav-list{
+	list-style:none; margin:2px 0 8px; padding:0 0 0 28px; display:none;
+}
+.snap-docs-nav-cat.is-open .snap-docs-nav-list{ display:block; }
+.snap-docs-nav-list li{ margin:0; }
+.snap-docs-nav-list li a{
+	display:block; padding:7px 10px; border-radius:6px;
+	color:#5a6b8c; text-decoration:none; font-size:14.5px; line-height:1.45;
+}
+.snap-docs-nav-list li a:hover{ color:#1f2a44; background:#f5f6fb; }
+.snap-docs-nav-list li.current a{ color:#e6398b; font-weight:600; }
+
+@media (max-width:991px){
+	.betterdocs-content-wrapper.betterdocs-display-flex{ flex-direction:column; }
+	.betterdocs-content-wrapper.betterdocs-display-flex > .snap-docs-sidebar{
+		flex:1 1 auto; max-width:100%; width:100%;
+	}
+}
