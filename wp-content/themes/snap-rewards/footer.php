@@ -60,7 +60,7 @@
 										</li>
 										<li style="display:none;">
 											<i class="icon dripicons-mail"></i>
-											<span><a href="mailto:info@snap-rewards.com">info@snap-rewards.com</a></span>
+											<span><a href="mailto:loyalty@snap-rewards.com">loyalty@snap-rewards.com</a></span>
 										</li>
 										<li>
 											<i class="fal fa-map-marker-alt"></i>
