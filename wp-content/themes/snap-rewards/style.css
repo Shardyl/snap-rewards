@@ -1,0 +1,14 @@
+/*
+Theme Name: Snap Rewards
+Theme URI: https://snap-rewards.com/
+Author: Sensa Productions
+Author URI: https://sensa.digital/
+Description: Faithful migration replica of the Snap Rewards website (Three Digital Software Trading LLC). Bespoke theme rebuilt onto WP Engine. Styles are delivered by the enqueued bundles in /css.
+Version: 1.0.0
+Requires at least: 6.0
+Requires PHP: 7.4
+Text Domain: snap-rewards
+*/
+
+/* All real styling is enqueued from /css/*.css (see functions.php). This file is the theme
+   header only, plus a couple of safety rules. */

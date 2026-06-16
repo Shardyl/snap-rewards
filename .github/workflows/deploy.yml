@@ -1,0 +1,32 @@
+name: Deploy to WP Engine (snaprewards)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.WPE_SSH_KEY_B64 }}" | base64 -d > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H snaprewards.ssh.wpengine.net >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Rsync theme to WP Engine
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/id_ed25519 -o BatchMode=yes -o StrictHostKeyChecking=no" \
+            wp-content/themes/snap-rewards/ \
+            snaprewards@snaprewards.ssh.wpengine.net:/sites/snaprewards/wp-content/themes/snap-rewards/
+
+      - name: Flush WP Engine cache
+        run: |
+          ssh -i ~/.ssh/id_ed25519 -o BatchMode=yes -o StrictHostKeyChecking=no \
+            snaprewards@snaprewards.ssh.wpengine.net \
+            "cd /sites/snaprewards && wp cache flush; wp page-cache flush || true"
