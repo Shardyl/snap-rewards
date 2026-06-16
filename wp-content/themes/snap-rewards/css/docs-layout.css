@@ -24,6 +24,41 @@
 .snap-docs-sidebar .betterdocs-search-form,
 .snap-docs-sidebar form{ margin-bottom:18px; }
 
+/* single doc */
+.betterdocs-single-content .betterdocs-entry-title{
+	font-size:34px; line-height:1.2; font-weight:700; color:#1f2a44; margin:0 0 12px;
+}
+.betterdocs-single-content .snap-doc-updated{
+	display:inline-block; background:#fff8e6; color:#8a7a3a; font-size:13px;
+	padding:4px 10px; border-radius:6px; margin:0 0 22px;
+}
+.betterdocs-single-content .betterdocs-entry-content img{ max-width:100%; height:auto; }
+
+/* breadcrumb (where-am-I index) at top of content */
+.snap-docs-crumb{ margin:0 0 22px; font-size:15px; color:#8a93a6; line-height:1.6; }
+.snap-docs-crumb a{ color:#8a93a6; text-decoration:none; }
+.snap-docs-crumb a:hover{ color:#1f2a44; }
+.snap-docs-crumb .sep{ margin:0 8px; color:#c2c9d6; }
+.snap-docs-crumb .cur{ color:#1f2a44; }
+
+/* category header band (folder + title + N Docs) */
+.snap-docs-cathead{
+	background:#f6f7fb; border-radius:14px; text-align:center;
+	padding:42px 20px; margin:0 0 38px;
+}
+.snap-docs-cathead .snap-cathead-ico{
+	display:inline-block; width:54px; height:44px; border-radius:9px;
+	background:#e6eaf3; position:relative; margin-bottom:16px;
+}
+.snap-docs-cathead .snap-cathead-ico:before{
+	content:""; position:absolute; top:-7px; left:11px; width:22px; height:9px;
+	border-radius:4px 4px 0 0; background:#e6eaf3;
+}
+.snap-docs-cathead .snap-cathead-title{
+	font-size:38px; line-height:1.15; font-weight:700; color:#1f2a44; margin:0 0 8px;
+}
+.snap-docs-cathead .snap-cathead-count{ font-size:18px; color:#5a6b8c; }
+
 /* nav tree — self-contained styling (explicit colours so nothing inherits white) */
 .snap-docs-nav-cat{ margin-bottom:6px; }
 .snap-docs-nav-head{

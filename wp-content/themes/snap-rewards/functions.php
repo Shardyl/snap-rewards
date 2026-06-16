@@ -6,7 +6,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'SNAP_VERSION', '1.1.4' );
+define( 'SNAP_VERSION', '1.1.6' );
 
 /**
  * BUILD-TIME NOINDEX.
@@ -204,14 +204,53 @@ function snap_docs_sidebar_nav() {
 	return $out;
 }
 
+/** Breadcrumb: Home / Docs / Category [ / Doc ] — the "where am I" index. */
+function snap_docs_breadcrumb() {
+	$out = '<nav class="snap-docs-crumb"><a href="' . esc_url( home_url( '/' ) ) . '">Home</a>'
+		. '<span class="sep">/</span><a href="' . esc_url( home_url( '/docs/' ) ) . '">Docs</a>';
+	$qo = get_queried_object();
+	if ( $qo instanceof WP_Term ) {
+		$out .= '<span class="sep">/</span><span class="cur">' . esc_html( $qo->name ) . '</span>';
+	} elseif ( $qo instanceof WP_Post ) {
+		$t = wp_get_post_terms( $qo->ID, 'doc_category' );
+		if ( $t && ! is_wp_error( $t ) ) {
+			$out .= '<span class="sep">/</span><a href="' . esc_url( get_term_link( $t[0] ) ) . '">' . esc_html( $t[0]->name ) . '</a>';
+		}
+		$out .= '<span class="sep">/</span><span class="cur">' . esc_html( get_the_title( $qo->ID ) ) . '</span>';
+	}
+	return $out . '</nav>';
+}
+
+/** Category header band: folder icon + category name + "N Docs" (category pages only). */
+function snap_docs_cat_header() {
+	$qo = get_queried_object();
+	if ( ! ( $qo instanceof WP_Term ) ) {
+		return '';
+	}
+	return '<div class="snap-docs-cathead"><span class="snap-cathead-ico"></span>'
+		. '<h1 class="snap-cathead-title">' . esc_html( $qo->name ) . '</h1>'
+		. '<div class="snap-cathead-count">' . (int) $qo->count . ' Docs</div></div>';
+}
+
 function snap_docs_footer_sidebar() {
 	if ( ! ( is_singular( 'docs' ) || is_tax( 'doc_category' ) || is_tax( 'doc_tag' ) ) ) {
 		return;
 	}
 	$inner   = do_shortcode( '[betterdocs_search_form]' ) . snap_docs_sidebar_nav();
 	$sidebar = '<div class="snap-docs-sidebar"><div class="snap-docs-sidebar-inner">' . $inner . '</div></div>';
+	$header  = snap_docs_breadcrumb() . snap_docs_cat_header();
 	echo '<div id="snap-docs-sb-src" hidden>' . $sidebar . '</div>';
-	echo '<script>(function(){var s=document.getElementById("snap-docs-sb-src");if(!s)return;var w=document.querySelector(".betterdocs-content-wrapper");if(w&&s.firstElementChild){w.insertBefore(s.firstElementChild,w.firstChild);}if(s.parentNode){s.parentNode.removeChild(s);}})();</script>';
+	echo '<div id="snap-docs-head-src" hidden>' . $header . '</div>';
+	echo '<script>(function(){'
+		. 'var w=document.querySelector(".betterdocs-content-wrapper");'
+		. 'var s=document.getElementById("snap-docs-sb-src");'
+		. 'if(w&&s&&s.firstElementChild){w.insertBefore(s.firstElementChild,w.firstChild);}'
+		. 'if(s&&s.parentNode){s.parentNode.removeChild(s);}'
+		. 'var h=document.getElementById("snap-docs-head-src");'
+		. 'var area=document.querySelector(".betterdocs-content-area")||document.querySelector(".betterdocs-content-inner-area");'
+		. 'if(h&&area){area.insertAdjacentHTML("afterbegin",h.innerHTML);}'
+		. 'if(h&&h.parentNode){h.parentNode.removeChild(h);}'
+		. '})();</script>';
 }
 add_action( 'wp_footer', 'snap_docs_footer_sidebar', 5 );
 
@@ -225,6 +264,13 @@ function snap_docs_archive_template( $template ) {
 		$custom = get_template_directory() . '/archive-docs.php';
 		if ( is_readable( $custom ) ) {
 			return $custom;
+		}
+	}
+	// BetterDocs free mis-renders single docs with the archive layout; force ours.
+	if ( is_singular( 'docs' ) ) {
+		$single = get_template_directory() . '/single-docs.php';
+		if ( is_readable( $single ) ) {
+			return $single;
 		}
 	}
 	return $template;
