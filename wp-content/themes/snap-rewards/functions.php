@@ -6,7 +6,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'SNAP_VERSION', '1.0.5' );
+define( 'SNAP_VERSION', '1.0.6' );
 
 /**
  * BUILD-TIME NOINDEX.
@@ -58,21 +58,6 @@ function snap_assets() {
 	// so it must load LAST to preserve the cascade (hero h1 size, blog card borders,
 	// single-post-area formatting, menu hover colour, breadcrumbs).
 	wp_enqueue_style( 'snap-custom-inline', $css . '/custom-inline.css',      array(), $ver );
-
-	// Docs (BetterDocs) CSS layer — only on docs pages.
-	if ( snap_doc_context() ) {
-		$d = $css . '/docs';
-		foreach ( array(
-			'betterdocs-single','betterdocs-encyclopedia','betterdocs-glossaries','simplebar',
-			'single-doc-attachments','single-doc-related-articles','betterdocs-search-modal',
-			'betterdocs-category-grid','reading-time','mediaelement','wp-mediaelement',
-			'betterdocs-reactions','betterdocs-social-share','betterdocs-toc',
-		) as $h ) {
-			wp_enqueue_style( 'snap-' . $h, $d . '/' . $h . '.css', array(), $ver );
-		}
-		// the big BetterDocs dynamic/customizer CSS that was inline in <head>
-		wp_enqueue_style( 'snap-betterdocs-inline', $d . '/betterdocs-inline.css', array(), $ver );
-	}
 
 	// JS — jQuery from core, then the theme scripts in the original order.
 	$js = get_template_directory_uri() . '/js';
@@ -136,53 +121,18 @@ function snap_body_class( $classes ) {
 		$classes[] = 'blog';
 		$classes[] = 'hfeed';
 	}
-	$ctx = snap_doc_context();
-	if ( $ctx ) {
-		$classes = array_diff( $classes, array( 'page', 'page-template-default', 'wp-singular', 'page-id-' . get_queried_object_id() ) );
-		$classes = array_merge( $classes, $ctx[1] );
-	}
 	return $classes;
 }
 add_filter( 'body_class', 'snap_body_class' );
 
 /* ---------------------------------------------------------------------------
- * DOCS (BetterDocs knowledge base) — like-for-like clone.
- * URLs: /docs/ (landing), /docs/{slug}/ (articles, child pages of "docs"),
- * /docs-category/{slug}/ (child pages of "docs-category"). Each renders its
- * captured partial in /inc/content/docs/ and loads the BetterDocs CSS layer.
- * Returns array(partial_relpath, body_classes[]) or null if not a docs page.
- * ------------------------------------------------------------------------- */
-function snap_doc_context( $post = null ) {
-	if ( ! $post ) { $post = get_queried_object(); }
-	if ( ! $post instanceof WP_Post ) { return null; }
-	$slug   = $post->post_name;
-	$parent = $post->post_parent ? get_post( $post->post_parent ) : null;
-	$pslug  = $parent ? $parent->post_name : '';
-
-	if ( $slug === 'docs' && ! $pslug ) {
-		return array( 'docs/docs', array( 'archive', 'post-type-archive', 'post-type-archive-docs', 'hfeed' ) );
-	}
-	if ( $pslug === 'docs' ) {
-		return array( 'docs/doc-' . $slug, array( 'single', 'single-docs', 'docs-template-default' ) );
-	}
-	if ( $pslug === 'docs-category' ) {
-		return array( 'docs/cat-' . $slug, array( 'archive', 'tax-doc_category', 'term-' . $slug, 'hfeed' ) );
-	}
-	return null;
-}
-
-/* ---------------------------------------------------------------------------
  * Render a captured content partial verbatim (the faithful page body).
  * Partials live in /inc/content/{slug}.html and are the exact <main> region of
  * the original page, with all URLs rewritten to root-relative.
+ * (Docs are handled natively by the BetterDocs plugin, not here.)
  * ------------------------------------------------------------------------- */
 function snap_render( $slug ) {
-	// allow a single "docs/" subfolder; otherwise sanitise to a flat name
-	if ( strpos( $slug, 'docs/' ) === 0 ) {
-		$rel  = 'docs/' . sanitize_file_name( substr( $slug, 5 ) );
-	} else {
-		$rel  = sanitize_file_name( $slug );
-	}
+	$rel  = sanitize_file_name( $slug );
 	$file = get_template_directory() . '/inc/content/' . $rel . '.html';
 	if ( is_readable( $file ) ) {
 		$html = file_get_contents( $file );
