@@ -6,7 +6,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'SNAP_VERSION', '1.1.2' );
+define( 'SNAP_VERSION', '1.1.4' );
 
 /**
  * BUILD-TIME NOINDEX.
@@ -150,20 +150,6 @@ add_filter( 'body_class', 'snap_body_class' );
  * first child of the existing `.betterdocs-content-wrapper.betterdocs-display-flex`
  * so it becomes the left column and the content sits on the right.
  * ------------------------------------------------------------------------- */
-function snap_docs_inject_sidebar( $html ) {
-	// NOTE: no do_shortcode() here — output buffering is forbidden inside an ob
-	// callback. The sidebar HTML is pre-rendered in snap_docs_buffer().
-	global $snap_docs_sidebar_html;
-	if ( empty( $snap_docs_sidebar_html ) || strpos( $html, 'betterdocs-content-wrapper' ) === false ) {
-		return $html;
-	}
-	$pos = strpos( $html, 'betterdocs-content-wrapper' );
-	$gt  = strpos( $html, '>', $pos );
-	if ( $gt !== false ) {
-		$html = substr( $html, 0, $gt + 1 ) . $snap_docs_sidebar_html . substr( $html, $gt + 1 );
-	}
-	return $html;
-}
 /**
  * Build the docs navigation tree directly (all categories + their docs as links,
  * current item highlighted). More reliable than BetterDocs' free category-list
@@ -218,16 +204,16 @@ function snap_docs_sidebar_nav() {
 	return $out;
 }
 
-function snap_docs_buffer() {
-	if ( is_singular( 'docs' ) || is_tax( 'doc_category' ) || is_tax( 'doc_tag' ) ) {
-		global $snap_docs_sidebar_html;
-		$inner = do_shortcode( '[betterdocs_search_form]' ) . snap_docs_sidebar_nav();
-		$snap_docs_sidebar_html = '<div class="betterdocs-sidebar snap-docs-sidebar">'
-			. '<div class="betterdocs-sidebar-content">' . $inner . '</div></div>';
-		ob_start( 'snap_docs_inject_sidebar' );
+function snap_docs_footer_sidebar() {
+	if ( ! ( is_singular( 'docs' ) || is_tax( 'doc_category' ) || is_tax( 'doc_tag' ) ) ) {
+		return;
 	}
+	$inner   = do_shortcode( '[betterdocs_search_form]' ) . snap_docs_sidebar_nav();
+	$sidebar = '<div class="snap-docs-sidebar"><div class="snap-docs-sidebar-inner">' . $inner . '</div></div>';
+	echo '<div id="snap-docs-sb-src" hidden>' . $sidebar . '</div>';
+	echo '<script>(function(){var s=document.getElementById("snap-docs-sb-src");if(!s)return;var w=document.querySelector(".betterdocs-content-wrapper");if(w&&s.firstElementChild){w.insertBefore(s.firstElementChild,w.firstChild);}if(s.parentNode){s.parentNode.removeChild(s);}})();</script>';
 }
-add_action( 'template_redirect', 'snap_docs_buffer' );
+add_action( 'wp_footer', 'snap_docs_footer_sidebar', 5 );
 
 /* ---------------------------------------------------------------------------
  * Force our own docs archive template (search hero + category-box grid) for the

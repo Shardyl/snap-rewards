@@ -24,15 +24,20 @@
 .snap-docs-sidebar .betterdocs-search-form,
 .snap-docs-sidebar form{ margin-bottom:18px; }
 
-/* nav tree */
+/* nav tree — self-contained styling (explicit colours so nothing inherits white) */
 .snap-docs-nav-cat{ margin-bottom:6px; }
 .snap-docs-nav-head{
 	display:flex; align-items:center; gap:10px;
 	padding:10px 12px; border-radius:8px;
-	color:#1f2a44; font-weight:600; text-decoration:none;
+	color:#1f2a44 !important; font-weight:600; text-decoration:none !important;
 }
-.snap-docs-nav-head:hover{ background:#f5f6fb; color:#1f2a44; }
-.snap-docs-nav-cat.is-open .snap-docs-nav-head{ background:#f5f6fb; }
+.snap-docs-nav-head .snap-cat-name{ color:#1f2a44 !important; }
+.snap-docs-nav-head:hover,
+.snap-docs-nav-head:hover .snap-cat-name{ background:transparent; color:#1f2a44 !important; }
+.snap-docs-nav-cat.is-open > .snap-docs-nav-head{ background:#f5f6fb; }
+.snap-docs-nav-head .snap-cat-count{
+	white-space:nowrap !important; width:auto !important; flex:0 0 auto;
+}
 .snap-docs-nav-head .snap-folder{
 	width:18px; height:15px; flex:0 0 18px; border-radius:2px;
 	background:#c7d0e0; position:relative;
