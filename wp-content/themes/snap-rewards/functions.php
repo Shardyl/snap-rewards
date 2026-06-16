@@ -6,7 +6,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'SNAP_VERSION', '1.1.6' );
+define( 'SNAP_VERSION', '1.1.7' );
 
 /**
  * BUILD-TIME NOINDEX.

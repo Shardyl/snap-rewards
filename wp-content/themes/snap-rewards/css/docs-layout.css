@@ -25,6 +25,9 @@
 .snap-docs-sidebar form{ margin-bottom:18px; }
 
 /* single doc */
+/* betterdocs-single.css gives this a -300px margin to overlap a Pro header band
+   we don't render; neutralise it so the title sits below the breadcrumb. */
+.betterdocs-single-content{ margin-top:0 !important; }
 .betterdocs-single-content .betterdocs-entry-title{
 	font-size:34px; line-height:1.2; font-weight:700; color:#1f2a44; margin:0 0 12px;
 }
