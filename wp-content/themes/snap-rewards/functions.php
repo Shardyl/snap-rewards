@@ -9,13 +9,35 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 define( 'SNAP_VERSION', '1.1.7' );
 
 /**
- * BUILD-TIME NOINDEX.
- * Keep the replica invisible to search engines during the build/iterate phase.
- * Flip to false ONLY when the operator approves go-live (see go-live checklist).
+ * LIVE-DOMAIN-AWARE CUTOVER.
+ * The replica is previewed on the WP Engine temp domain and must stay invisible
+ * to search engines there. The moment DNS for snap-rewards.com points at this
+ * install, requests arriving on the live host must (a) serve with the correct
+ * canonical (no redirect back to the temp domain) and (b) become indexable — so
+ * the 1:1 replica seamlessly replaces the currently-indexed live site with no
+ * manual flip needed at cutover.
+ *
+ * Emergency hold: define SNAP_FORCE_NOINDEX = true to noindex every host.
  */
-if ( ! defined( 'SNAP_BUILD_NOINDEX' ) ) {
-	define( 'SNAP_BUILD_NOINDEX', true );
+function snap_live_hosts() {
+	return array( 'snap-rewards.com', 'www.snap-rewards.com' );
 }
+function snap_is_live_host() {
+	$h = isset( $_SERVER['HTTP_HOST'] ) ? strtolower( $_SERVER['HTTP_HOST'] ) : '';
+	return in_array( $h, snap_live_hosts(), true );
+}
+function snap_should_noindex() {
+	if ( defined( 'SNAP_FORCE_NOINDEX' ) && SNAP_FORCE_NOINDEX ) {
+		return true;
+	}
+	return ! snap_is_live_host();
+}
+/* Serve the right canonical host per request (temp preview + live cutover both work). */
+function snap_dynamic_url() {
+	return snap_is_live_host() ? 'https://snap-rewards.com' : 'https://snaprewards.wpenginepowered.com';
+}
+add_filter( 'option_home', 'snap_dynamic_url' );
+add_filter( 'option_siteurl', 'snap_dynamic_url' );
 
 /* ---------------------------------------------------------------------------
  * Theme setup
@@ -110,22 +132,34 @@ function snap_assets() {
 add_action( 'wp_enqueue_scripts', 'snap_assets' );
 
 /* ---------------------------------------------------------------------------
- * Build-time noindex output (independent of blog_public / SEO plugin).
+ * Host-aware indexing: noindex everywhere EXCEPT the live snap-rewards.com host.
+ * Belt-and-braces — X-Robots-Tag header + Rank Math robots filter (Rank Math
+ * owns the <meta robots>, so we steer it rather than printing a second tag).
  * ------------------------------------------------------------------------- */
-function snap_noindex_meta() {
-	if ( SNAP_BUILD_NOINDEX ) {
-		echo "<meta name=\"robots\" content=\"noindex, nofollow\">\n";
-	}
-}
-add_action( 'wp_head', 'snap_noindex_meta', 1 );
-
 function snap_noindex_header( $headers ) {
-	if ( SNAP_BUILD_NOINDEX ) {
+	if ( snap_should_noindex() ) {
 		$headers['X-Robots-Tag'] = 'noindex, nofollow';
 	}
 	return $headers;
 }
 add_filter( 'wp_headers', 'snap_noindex_header' );
+
+function snap_rankmath_robots( $robots ) {
+	if ( snap_should_noindex() ) {
+		$robots['index']  = 'noindex';
+		$robots['follow'] = 'nofollow';
+	}
+	return $robots;
+}
+add_filter( 'rank_math/frontend/robots', 'snap_rankmath_robots' );
+
+/* Fallback meta only if Rank Math isn't active, so the temp host is never indexable. */
+function snap_noindex_meta() {
+	if ( snap_should_noindex() && ! class_exists( 'RankMath' ) ) {
+		echo "<meta name=\"robots\" content=\"noindex, nofollow\">\n";
+	}
+}
+add_action( 'wp_head', 'snap_noindex_meta', 1 );
 
 /* ---------------------------------------------------------------------------
  * Body classes: the original /blog/ was a posts archive (body class "blog hfeed"),
