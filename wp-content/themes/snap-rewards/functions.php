@@ -6,7 +6,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'SNAP_VERSION', '1.2.1' );
+define( 'SNAP_VERSION', '1.2.2' );
 
 /* Sensa CMS field config (editable homepage copy/images) + token-render fallbacks. */
 require_once get_template_directory() . '/inc/cms-config.php';
@@ -180,6 +180,14 @@ function snap_ga4() {
 	echo "<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-X6R9LVM5F4');</script>\n";
 }
 add_action( 'wp_head', 'snap_ga4', 2 );
+
+/* Migration rule: blog posts NEVER accept comments or pings (kills comment spam at the
+ * source, regardless of per-post settings). Site defaults are also set to closed. */
+function snap_no_comments( $open, $post_id ) {
+	return ( 'post' === get_post_type( $post_id ) ) ? false : $open;
+}
+add_filter( 'comments_open', 'snap_no_comments', 10, 2 );
+add_filter( 'pings_open', 'snap_no_comments', 10, 2 );
 
 /* ---------------------------------------------------------------------------
  * Body classes: the original /blog/ was a posts archive (body class "blog hfeed"),
