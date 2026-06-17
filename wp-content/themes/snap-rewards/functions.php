@@ -6,7 +6,10 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'SNAP_VERSION', '1.1.7' );
+define( 'SNAP_VERSION', '1.2.1' );
+
+/* Sensa CMS field config (editable homepage copy/images) + token-render fallbacks. */
+require_once get_template_directory() . '/inc/cms-config.php';
 
 /**
  * LIVE-DOMAIN-AWARE CUTOVER.
@@ -160,6 +163,23 @@ function snap_noindex_meta() {
 	}
 }
 add_action( 'wp_head', 'snap_noindex_meta', 1 );
+
+/* Google Search Console site verification (URL-prefix property, META method). */
+function snap_gsc_verify() {
+	echo '<meta name="google-site-verification" content="vNcSvf8creJFwjkd90ilErvgoxDHRdD3ILuraHhzM-g" />' . "\n";
+}
+add_action( 'wp_head', 'snap_gsc_verify', 1 );
+
+/* Google Analytics 4 (gtag.js) — live host only, so build/staging traffic isn't tracked. */
+function snap_ga4() {
+	if ( ! snap_is_live_host() ) {
+		return;
+	}
+	echo "<!-- Google tag (gtag.js) -->\n";
+	echo '<script async src="https://www.googletagmanager.com/gtag/js?id=G-X6R9LVM5F4"></script>' . "\n";
+	echo "<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-X6R9LVM5F4');</script>\n";
+}
+add_action( 'wp_head', 'snap_ga4', 2 );
 
 /* ---------------------------------------------------------------------------
  * Body classes: the original /blog/ was a posts archive (body class "blog hfeed"),
@@ -322,6 +342,16 @@ function snap_render( $slug ) {
 	$file = get_template_directory() . '/inc/content/' . $rel . '.html';
 	if ( is_readable( $file ) ) {
 		$html = file_get_contents( $file );
+		// Sensa CMS: swap {{T:key}} -> editable text and {{I:key}} -> editable image URL.
+		if ( false !== strpos( $html, '{{' ) ) {
+			$html = preg_replace_callback(
+				'/\{\{(T|I):([a-z0-9_]+)\}\}/',
+				function ( $m ) {
+					return 'T' === $m[1] ? sc_text( $m[2] ) : esc_url( sc_img( $m[2] ) );
+				},
+				$html
+			);
+		}
 		// Swap the contact-form token for the live Contact Form 7 shortcode.
 		if ( false !== strpos( $html, '<!--SNAP_CF7-->' ) ) {
 			$form_id = (int) get_option( 'snap_cf7_form_id', 0 );
