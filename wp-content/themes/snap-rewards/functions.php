@@ -390,3 +390,54 @@ function snap_menu_fallback() {
 	}
 	echo '</ul>';
 }
+
+/* ---------------------------------------------------------------------------
+ * Contact Form 7 -> Cortex. On a successful contact-form send, forward the
+ * enquiry straight to Cortex (triaged + captured as a lead). URL/token live in
+ * wp_options, not the repo. Scoped to the contact form (snap_cf7_form_id).
+ * ------------------------------------------------------------------------- */
+add_action( 'wpcf7_mail_sent', 'snap_cf7_to_cortex' );
+function snap_cf7_to_cortex( $cf ) {
+	$url   = get_option( 'cortex_enquiry_url' );
+	$token = get_option( 'cortex_enquiry_token' );
+	if ( ! $url || ! $token ) {
+		return;
+	}
+	$fid = (int) get_option( 'snap_cf7_form_id', 0 );
+	if ( $fid && method_exists( $cf, 'id' ) && (int) $cf->id() !== $fid ) {
+		return;   // only the contact form, not any other CF7 form
+	}
+	$sub = class_exists( 'WPCF7_Submission' ) ? WPCF7_Submission::get_instance() : null;
+	if ( ! $sub ) {
+		return;
+	}
+	$d = $sub->get_posted_data();
+	$flat = function ( $v ) {
+		return is_array( $v ) ? trim( implode( ', ', $v ) ) : trim( (string) $v );
+	};
+	$name = $email = $phone = $msg = '';
+	foreach ( $d as $k => $v ) {
+		$s = $flat( $v );
+		if ( '' === $s || '_wpcf7' === substr( $k, 0, 6 ) ) {
+			continue;
+		}
+		if ( '' === $email && ( 0 === strpos( $k, 'email' ) || 'your-email' === $k ) && is_email( $s ) ) {
+			$email = $s;
+		} elseif ( '' === $phone && ( 0 === strpos( $k, 'tel' ) || 'your-phone' === $k ) ) {
+			$phone = $s;
+		} elseif ( '' === $msg && ( 0 === strpos( $k, 'textarea' ) || 'your-message' === $k ) ) {
+			$msg = $s;
+		} elseif ( '' === $name && ( 0 === strpos( $k, 'text-' ) || 'your-name' === $k || 'your-subject' === $k ) ) {
+			$name = $s;
+		}
+	}
+	if ( ! $email || ! is_email( $email ) ) {
+		return;
+	}
+	wp_remote_post( $url, array(
+		'timeout'  => 8,
+		'blocking' => false,
+		'headers'  => array( 'Content-Type' => 'application/json', 'X-Token' => $token ),
+		'body'     => wp_json_encode( array( 'name' => $name, 'email' => $email, 'phone' => $phone, 'message' => $msg ) ),
+	) );
+}
