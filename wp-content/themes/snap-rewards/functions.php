@@ -6,7 +6,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'SNAP_VERSION', '1.2.4' );
+define( 'SNAP_VERSION', '1.2.5' );
 
 /* Sensa CMS field config (editable homepage copy/images) + token-render fallbacks. */
 require_once get_template_directory() . '/inc/cms-config.php';
@@ -373,7 +373,26 @@ function snap_render( $slug ) {
 		$pid = get_queried_object_id();
 		$pc  = $pid ? get_post_field( 'post_content', $pid ) : '';
 		if ( '' !== trim( (string) $pc ) ) {
-			echo '<main>' . $pc . '</main>'; // phpcs:ignore — Cortex-authored, self-contained HTML
+			if ( is_single() ) {
+				// Cortex blog post -> wrap post_content in the SAME layout published posts use: the slider-area
+				// hero (pink graphic + title) + the post-featured-image band, then the article body.
+				$title = get_the_title( $pid );
+				$bg    = '/wp-content/themes/snap-rewards/img/bg/gray-header-bg-small-purple.png';
+				echo '<main id="primary" class="site-main">';
+				echo '<section class="slider-area slider-bg2 second-slider-bg o-blog-banner single d-flex fix" style="background-image:url(' . esc_url( $bg ) . ');background-position:right 0;background-repeat:no-repeat;background-size:65%">';
+				echo '<div class="slider-shape ss-one layer" data-depth="0.10"><img src="/wp-content/themes/snap-rewards/img/shape/header-sape.png" alt="shape"></div>';
+				echo '<div class="slider-shape ss-eight layer" data-depth="0.50"></div>';
+				echo '<div class="container"><div class="row"><div class="col-lg-8"><div class="slider-content second-slider-content left-center"><h1 class="post-title">' . esc_html( $title ) . '</h1></div></div><div class="col-lg-4"></div></div></div>';
+				echo '</section>';
+				echo '<section class="single-post-area pb-60"><div class="container"><div class="row"><div class="col-lg-12 mx-auto">';
+				if ( has_post_thumbnail( $pid ) ) {
+					echo '<div class="post-featured-image mb-4">' . get_the_post_thumbnail( $pid, 'large', array( 'class' => 'img-fluid rounded wp-post-image' ) ) . '</div>';
+				}
+				echo $pc; // phpcs:ignore — Cortex-authored, self-contained HTML
+				echo '</div></div></div></section></main>';
+			} else {
+				echo '<main>' . $pc . '</main>'; // phpcs:ignore — Cortex-authored, self-contained HTML
+			}
 		} else {
 			echo '<main><div class="container" style="padding:120px 0;text-align:center"><h2>Content not found: ' . esc_html( $slug ) . '</h2></div></main>';
 		}
