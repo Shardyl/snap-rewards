@@ -6,7 +6,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'SNAP_VERSION', '1.2.5' );
+define( 'SNAP_VERSION', '1.2.6' );
 
 /* Sensa CMS field config (editable homepage copy/images) + token-render fallbacks. */
 require_once get_template_directory() . '/inc/cms-config.php';
@@ -345,7 +345,34 @@ add_filter( 'template_include', 'snap_docs_archive_template', 9999 );
  * the original page, with all URLs rewritten to root-relative.
  * (Docs are handled natively by the BetterDocs plugin, not here.)
  * ------------------------------------------------------------------------- */
+function snap_render_cortex_post( $pid, $pc ) {
+	// A Cortex blog post in the SAME layout published posts use: slider-area hero (pink graphic + title) +
+	// the post-featured-image band, then the article body.
+	$title = get_the_title( $pid );
+	$bg    = '/wp-content/themes/snap-rewards/img/bg/gray-header-bg-small-purple.png';
+	echo '<main id="primary" class="site-main">';
+	echo '<section class="slider-area slider-bg2 second-slider-bg o-blog-banner single d-flex fix" style="background-image:url(' . esc_url( $bg ) . ');background-position:right 0;background-repeat:no-repeat;background-size:65%">';
+	echo '<div class="slider-shape ss-one layer" data-depth="0.10"><img src="/wp-content/themes/snap-rewards/img/shape/header-sape.png" alt="shape"></div>';
+	echo '<div class="slider-shape ss-eight layer" data-depth="0.50"></div>';
+	echo '<div class="container"><div class="row"><div class="col-lg-8"><div class="slider-content second-slider-content left-center"><h1 class="post-title">' . esc_html( $title ) . '</h1></div></div><div class="col-lg-4"></div></div></div>';
+	echo '</section>';
+	echo '<section class="single-post-area pb-60"><div class="container"><div class="row"><div class="col-lg-12 mx-auto">';
+	if ( has_post_thumbnail( $pid ) ) {
+		echo '<div class="post-featured-image mb-4">' . get_the_post_thumbnail( $pid, 'large', array( 'class' => 'img-fluid rounded wp-post-image' ) ) . '</div>';
+	}
+	echo $pc; // phpcs:ignore — Cortex-authored, self-contained HTML
+	echo '</div></div></div></section></main>';
+}
+
 function snap_render( $slug ) {
+	$cortex_pid = get_queried_object_id();
+	$cortex_pc  = $cortex_pid ? get_post_field( 'post_content', $cortex_pid ) : '';
+	// A single POST with real post_content (a re-composed Cortex post) takes priority over any bundled partial,
+	// so re-writing an old migrated post replaces what its live URL shows.
+	if ( is_single() && '' !== trim( (string) $cortex_pc ) ) {
+		snap_render_cortex_post( $cortex_pid, $cortex_pc );
+		return;
+	}
 	$rel  = sanitize_file_name( $slug );
 	$file = get_template_directory() . '/inc/content/' . $rel . '.html';
 	if ( is_readable( $file ) ) {
