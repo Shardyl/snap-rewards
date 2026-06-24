@@ -6,7 +6,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'SNAP_VERSION', '1.2.3' );
+define( 'SNAP_VERSION', '1.2.4' );
 
 /* Sensa CMS field config (editable homepage copy/images) + token-render fallbacks. */
 require_once get_template_directory() . '/inc/cms-config.php';
@@ -368,7 +368,15 @@ function snap_render( $slug ) {
 		}
 		echo $html; // phpcs:ignore — trusted theme-bundled markup
 	} else {
-		echo '<main><div class="container" style="padding:120px 0;text-align:center"><h2>Content not found: ' . esc_html( $slug ) . '</h2></div></main>';
+		// Posts authored AFTER the migration (e.g. Cortex blog posts) keep their HTML in WordPress post_content,
+		// not a bundled inc/content/{slug}.html partial — render that when present so the live URL shows the post.
+		$pid = get_queried_object_id();
+		$pc  = $pid ? get_post_field( 'post_content', $pid ) : '';
+		if ( '' !== trim( (string) $pc ) ) {
+			echo '<main>' . $pc . '</main>'; // phpcs:ignore — Cortex-authored, self-contained HTML
+		} else {
+			echo '<main><div class="container" style="padding:120px 0;text-align:center"><h2>Content not found: ' . esc_html( $slug ) . '</h2></div></main>';
+		}
 	}
 }
 
