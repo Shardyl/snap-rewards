@@ -6,7 +6,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'SNAP_VERSION', '1.2.6' );
+define( 'SNAP_VERSION', '1.2.7' );
 
 /* Sensa CMS field config (editable homepage copy/images) + token-render fallbacks. */
 require_once get_template_directory() . '/inc/cms-config.php';
